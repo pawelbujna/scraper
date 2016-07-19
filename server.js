@@ -6,46 +6,43 @@ var app = express();
 
 app.get('/scrape', function (req, res) {
 
-    // Godzila movie
-    url = 'http://www.imdb.com/title/tt0371746/';
 
+    url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a=0';
+
+    var companies = [];
+    var companiesInfo = [];
     request(url, function(error, response, html) {
 
         if (!error) {
             var $ = cheerio.load(html);
 
-            var title, release, rating;
-            var json = {title: "", release: "", rating: ""};
+            var companyName;
+            var json = {companyName: ""};
 
-            $('div.title_wrapper').filter(function(){
-                var data = $(this);
-                title = data.children().first().text();
-                json.title = title;
+            $('td.tresc > u').filter(function(){
+                // Selected element with company Name
+                var companyName = $(this).text();
+                companies.push(companyName);
             });
 
-            $('span#titleYear').filter(function(){
-                var data = $(this);
-                release = data.children().first().text();
-                json.release = release;
-            });
-
-            $('.ratingValue').filter(function() {
-                var data = $(this);
-                rating = data.children().first().children().text();
-                json.rating = rating;
+            $('p.tresc').filter(function(){
+                // Selected element with company Name
+                var companyInfo = $(this).text();
+                companiesInfo.push(companyInfo);
             });
         }
 
-        fs.writeFile('output.json', JSON.stringify(json, null, 4), function (err) {
-            console.log('Hope we have saved the file!');
-        });
-    });
+        // fs.writeFile('output.json', JSON.stringify(json, null, 4), function (err) {
+        //     console.log('Hope we have saved the file!');
+        // });
 
-    res.send('File saved. Check console!');
+    res.send(companies);
+});
+
 });
 
 app.listen('3000');
 
-console.log("Magic on port 8081");
+console.log("Magic on port 3000");
 
 exports = module.export = app;
