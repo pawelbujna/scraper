@@ -19,6 +19,7 @@ app.get('/scrape', function (req, res) {
             var companyName;
             var json = {companyName: ""};
 
+            //Try change filter with each .each(function())
             $('td.tresc > u').filter(function(){
                 // Selected element with company Name
                 var companyName = $(this).text();
