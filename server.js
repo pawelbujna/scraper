@@ -1,5 +1,6 @@
 var express = require('express');
 var fs = require('fs');
+var stringify = require('csv-stringify');
 var request = require('request');
 var cheerio = require('cheerio');
 var app = express();
@@ -13,8 +14,18 @@ function createCompany(companyName, companyInformation) {
     this.companyInformation = companyInformation;
 }
 
-app.get('/scrape', function (req, res) {
-    for (var a = 0; a < 1024; a++) {
+var saveFile = function() { 
+    stringify(companies, function(err, output){
+        fs.writeFile('companiesList.csv', output, 'utf8', function (err) {
+            if (!err) { console.log('OK') };
+        });
+    });
+};
+
+var downloadData = function() {
+
+    for (var a = 0; a < 2; a++) {
+
         url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a='+[a];    
 
         request(url, function(error, response, html) {
@@ -41,24 +52,20 @@ app.get('/scrape', function (req, res) {
                 }
 
                 console.log(companies);
+                saveFile();
             };            
         });
     };
 
-    fs.writeFile('companiesList.csv', companies, 'utf8', function (err) {
-        if (err) {
-            console.log('Some error occured - file either not saved or corrupted file saved.');
-        } else {
-            console.log('It\'s saved!');
-        };
-    });
+};
 
-    res.send('OK');
-});
+downloadData();
 
 
-app.listen('3000');
-
-console.log("Magic on port 3000");
+// fs.writeFile('companiesList.csv', companies, 'utf8', function (err) {
+//     if (!err)
+//         console.log('It\'s saved!');
+//     };
+// });
 
 exports = module.export = app;
