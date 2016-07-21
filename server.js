@@ -4,43 +4,58 @@ var request = require('request');
 var cheerio = require('cheerio');
 var app = express();
 
+var companiesNames = [];
+var companiesInfo = [];
+var companies = [];
+
+function createCompany(companyName, companyInformation) {
+    this.companyName = companyName;
+    this.companyInformation = companyInformation;
+}
+
 app.get('/scrape', function (req, res) {
+    for (var a = 0; a < 1024; a++) {
+        url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a='+[a];    
 
+        request(url, function(error, response, html) {
 
-    url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a=0';
+            if (!error) {
+                var $ = cheerio.load(html);
 
-    var companies = [];
-    var companiesInfo = [];
-    request(url, function(error, response, html) {
+                //Try change filter with each .each(function())
+                $('td.tresc > u:first-child').filter(function() {
+                    // Selected element with company Name
+                    var companyName = $(this).text();
+                    companiesNames.push(companyName);
+                });
 
-        if (!error) {
-            var $ = cheerio.load(html);
+                $('p.tresc').filter(function() {
+                    // Selected element with company decription
+                    var companyInfo = $(this).text();
+                    companiesInfo.push(companyInfo);
+                });
 
-            var companyName;
-            var json = {companyName: ""};
+                for (var i = 0; i < companiesNames.length; i++) {
+                    var company = new createCompany(companiesNames[i], companiesInfo[i]);
+                    companies.push(company);
+                }
 
-            //Try change filter with each .each(function())
-            $('td.tresc > u').filter(function(){
-                // Selected element with company Name
-                var companyName = $(this).text();
-                companies.push(companyName);
-            });
+                console.log(companies);
+            };            
+        });
+    };
 
-            $('p.tresc').filter(function(){
-                // Selected element with company Name
-                var companyInfo = $(this).text();
-                companiesInfo.push(companyInfo);
-            });
-        }
+    fs.writeFile('companiesList.csv', companies, 'utf8', function (err) {
+        if (err) {
+            console.log('Some error occured - file either not saved or corrupted file saved.');
+        } else {
+            console.log('It\'s saved!');
+        };
+    });
 
-        // fs.writeFile('output.json', JSON.stringify(json, null, 4), function (err) {
-        //     console.log('Hope we have saved the file!');
-        // });
-
-    res.send(companies);
+    res.send('OK');
 });
 
-});
 
 app.listen('3000');
 
