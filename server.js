@@ -15,6 +15,7 @@ var createCompanyConstructor = function(companyName, companyInformation) {
   this.companyInformation = companyInformation;
 }
 
+// Save all data to csv file.
 var saveFile = function() {
   stringify(companies, function(err, output){
     fs.writeFile('companiesList.csv', output, function (err) {
@@ -23,6 +24,7 @@ var saveFile = function() {
   });
 };
 
+// Convert companiesNames and companiesInfo arrays to objects array.
 var createCompanyObject =  function() {
   for (var i = 0; i < companiesNames.length; i++) {
     if (i < companiesNames.length - 1) {
@@ -36,6 +38,7 @@ var createCompanyObject =  function() {
 }
 
 var downloadData = function() {
+  // Repeat for all subpages on orf.pl.
   for (var a = 0; a < 1725; a++) {
     if (a < 1724) {
       url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a='+[a];
@@ -43,32 +46,31 @@ var downloadData = function() {
       request({uri: url, encoding: null}, function(error, response, html) {
         if (!error) {
 
+          // Polish characters encoding.
           html = iconv.decode(html, 'Windows-1250');
 
           var $ = cheerio.load(html);
 
-          //Try change filter with each .each(function())
           $('td.tresc > u:first-child').filter(function() {
-            // Selected element with company Name
+            // Selected element with company Name.
             var companyName = $(this).text();
             companiesNames.push(companyName);
           });
 
           $('p.tresc').filter(function() {
-            // Selected element with company decription
+            // Selected element with company decription.
             var companyInfo = $(this).text();
             companiesInfo.push(companyInfo);
           });
         };
       });
     } else {
+      // Wait until all data will load to array.
       setTimeout(createCompanyObject, 180000);
     };
   };
 };
 
-downloadData();
-
-// Podzielic na miasta.//
+downloadData()
 
 exports = module.export = app;
