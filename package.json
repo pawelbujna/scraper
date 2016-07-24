@@ -10,6 +10,7 @@
     "cheerio": "latest"
   },
   "devDependencies": {
-    "csv-stringify": "^1.0.4"
+    "csv-stringify": "^1.0.4",
+    "iconv-lite": "^0.4.13"
   }
 }
