@@ -38,31 +38,34 @@ var createCompanyObject =  function() {
 }
 
 var downloadData = function() {
-  // Repeat for all subpages on orf.pl.
-  for (var a = 0; a < 1725; a++) {
-    if (a < 1724) {
+
+  var pagesQuantity = 1725;
+
+  for (var a = 0; a < pagesQuantity; a++) {
+    if (a < pagesQuantity) {
       url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a='+[a];
 
       request({uri: url, encoding: null}, function(error, response, html) {
-        if (!error) {
-
-          // Polish characters encoding.
-          html = iconv.decode(html, 'Windows-1250');
-
-          var $ = cheerio.load(html);
-
-          $('td.tresc > u:first-child').filter(function() {
-            // Selected element with company Name.
-            var companyName = $(this).text();
-            companiesNames.push(companyName);
-          });
-
-          $('p.tresc').filter(function() {
-            // Selected element with company decription.
-            var companyInfo = $(this).text();
-            companiesInfo.push(companyInfo);
-          });
+        if (error) {
+          return;
         };
+
+        // Polish characters encoding.
+        html = iconv.decode(html, 'Windows-1250');
+
+        var $ = cheerio.load(html);
+
+        $('td.tresc > u:first-child').filter(function() {
+          // Selected element with company Name.
+          var companyName = $(this).text();
+          companiesNames.push(companyName);
+        });
+
+        $('p.tresc').filter(function() {
+          // Selected element with company decription.
+          var companyInfo = $(this).text();
+          companiesInfo.push(companyInfo);
+        });
       });
     } else {
       // Wait until all data will load to array.
