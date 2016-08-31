@@ -5,6 +5,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 var iconv = require('iconv-lite');
 var app = express();
+var downloadDataPromise = require('./downloadingDataPromise.js')
 
 var companiesNames = [];
 var companiesInfo = [];
@@ -38,33 +39,34 @@ var companies = [];
 
 var loopThroughAllPages = function() {
   var pagesQuantity = 17;
+
+  console.log(downloadDataPromise.downloadData('test'));
+
   for (var a = 0; a < pagesQuantity; a++) {
 
     url = 'http://www.orf.pl/index.php?go=woj&woj=%9Cl%B9skie&a='+[a];
 
-    request({uri: url, encoding: null}, function(error, response, html) {
-      if (error) { return; }
-      pullOutWebsiteData(html);
-    });
   };
 };
 
-var pullOutWebsiteData = function(html) {
-  var $ = cheerio.load(html);
+var downloadCompaniesData = function(html) {
+  request({uri: url, encoding: null}, function(error, response, html) {
+    if (error) { return; }
 
-  $('td.tresc > u:first-child').filter(function() {
-    var companyName = $(this).text();
-    companiesNames.push(companyName);
+    var $ = cheerio.load(html);
+
+    $('td.tresc > u:first-child').filter(function() {
+      var companyName = $(this).text();
+      companiesNames.push(companyName);
+    });
+
+    $('p.tresc').filter(function() {
+      var companyInfo = $(this).text();
+      companiesInfo.push(companyInfo);
+    });
   });
-
-  $('p.tresc').filter(function() {
-    var companyInfo = $(this).text();
-    companiesInfo.push(companyInfo);
-  });
-
-  console.log(companiesNames.length);
 };
 
-downloadData()
+loopThroughAllPages()
 
 exports = module.export = app;
