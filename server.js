@@ -37,6 +37,9 @@ var companies = [];
 // }
 
 
+// test
+test
+
 var loopThroughAllPages = function() {
   var pagesQuantity = 17;
 
